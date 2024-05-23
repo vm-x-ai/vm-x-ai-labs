@@ -1,0 +1,27 @@
+[tool.nx]
+autoActivate = true
+
+[tool.poetry]
+name = "vm-x-ai-aws-cdk"
+version = "1.0.0"
+description = ""
+authors = [ ]
+license = "Proprietary"
+readme = "README.md"
+package-mode = false
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<4"
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "2.1.0"
+ruff = "0.4.1"
+pytest = "8.1.1"
+pytest-sugar = "1.0.0"
+pytest-cov = "5.0.0"
+pytest-html = "4.1.1"
+
+
+[build-system]
+requires = [ "poetry-core" ]
+build-backend = "poetry.core.masonry.api"

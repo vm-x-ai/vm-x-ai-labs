@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    branches:
+      - main
+
+permissions:
+  actions: write
+  id-token: write
+  pull-requests: write
+  issues: write
+  statuses: write
+  checks: write
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.SEMANTIC_RELEASE_APP_ID }}
+          private_key: ${{ secrets.SEMANTIC_RELEASE_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.generate_token.outputs.token }}
+      - uses: ./.github/actions/setup-monorepo
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.NXCACHE_IAM_ROLE }}
+          aws-region: ${{ vars.NXCACHE_AWS_REGION }}
+          role-session-name: NxCache
+      - name: git config
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git remote rm origin
+          git remote add origin https://vm-x-ai:${GITHUB_TOKEN}@github.com/vm-x-ai/vm-x-ai-sdk.git
+          git symbolic-ref HEAD refs/heads/main
+          git config --global push.autoSetupRemote true
+          git config user.name "vm-x-ai-release[bot]"
+          git config user.email "167465110+vm-x-ai-release[bot]@users.noreply.github.com"
+      - name: npm config
+        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: poetry config
+        run: poetry config pypi-token.pypi "$PYPI_TOKEN"
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      - name: Release
+        run: pnpm nx affected -t release --parallel=false
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          HUSKY: '0'
