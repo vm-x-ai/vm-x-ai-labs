@@ -32,6 +32,15 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "release": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "npx release-it --ci",
+        "cwd": "{projectRoot}"
+      },
+      "dependsOn": ["^release"]
     }
   },
   "namedInputs": {
