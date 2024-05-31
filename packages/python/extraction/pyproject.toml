@@ -1,0 +1,48 @@
+[tool.coverage.run]
+branch = true
+source = [ "vmxai_extraction" ]
+
+[tool.coverage.report]
+exclude_lines = ['if TYPE_CHECKING:']
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html:'../../../coverage/packages/python/extraction/html' --cov-report xml:'../../../coverage/packages/python/extraction/coverage.xml' --html='../../../reports/packages/python/extraction/unittests/html/index.html' --junitxml='../../../reports/packages/python/extraction/unittests/junit.xml'"
+
+[tool.poetry]
+name = "vm-x-ai-extraction"
+version = "0.0.1"
+description = "VM-X AI Extraction Helper Library"
+authors = [ "VM-X Engineering <eng@vm-x.ai>" ]
+maintainers = [ "VM-X Engineering <eng@vm-x.ai>" ]
+license = "MIT"
+readme = 'README.md'
+repository = "https://github.com/vm-x-ai/vm-x-ai-labs"
+keywords = [ "VM-X", "AI", "AWS", "CDK", "Constructs", "Serverless", "Python", "Extraction" ]
+classifiers = [
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3"
+]
+group = { }
+
+  [[tool.poetry.packages]]
+  include = "vmxai_extraction"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<4"
+  langchain-core = "^0.2.1"
+
+[tool.ruff]
+exclude = [ ".ruff_cache", ".svn", ".tox", ".venv", "dist" ]
+line-length = 120
+indent-width = 4
+
+  [tool.ruff.lint]
+  select = [ "E", "F", "UP", "B", "SIM", "I" ]
+  ignore = [ ]
+  fixable = [ "ALL" ]
+  unfixable = [ ]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

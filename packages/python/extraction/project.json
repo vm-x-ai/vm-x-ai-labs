@@ -1,0 +1,66 @@
+{
+  "name": "python-extraction",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/python/extraction/vmxai_extraction",
+  "targets": {
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry lock --no-update",
+        "cwd": "packages/python/extraction"
+      }
+    },
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {}
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {}
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {}
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "outputPath": "packages/python/extraction/dist",
+        "publish": false,
+        "lockedVersions": true,
+        "bundleLocalDependencies": true
+      }
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "silent": false,
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "verbose": false,
+        "debug": false
+      }
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "outputs": [],
+      "options": {
+        "lintFilePatterns": ["vmxai_extraction", "tests"]
+      }
+    },
+    "test": {
+      "executor": "@nxlv/python:run-commands",
+      "outputs": [
+        "{workspaceRoot}/reports/packages/python/extraction/unittests",
+        "{workspaceRoot}/coverage/packages/python/extraction"
+      ],
+      "options": {
+        "command": "poetry run pytest tests/",
+        "cwd": "packages/python/extraction"
+      }
+    }
+  },
+  "tags": []
+}

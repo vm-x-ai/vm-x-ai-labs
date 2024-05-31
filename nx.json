@@ -2,6 +2,15 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": ["@nxlv/python"],
   "targetDefaults": {
+    "cdk-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm cdk deploy '*' --require-approval never -c stage={args.stage} --concurrency 10",
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {},
+      "dependsOn": ["build"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["production", "^production", "{projectRoot}/nest-cli.json", "{workspaceRoot}/esbuild.config.js"],
@@ -46,6 +55,12 @@
         "awsRegion": "us-east-1",
         "awsBucket": "vm-x-ai-nx-remote-cache-shared"
       }
+    }
+  },
+  "generators": {
+    "@nxlv/python:poetry-project": {
+      "pyprojectPythonDependency": ">=3.8.1,<4",
+      "linter": "ruff"
     }
   }
 }

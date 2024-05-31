@@ -1,3 +1,3 @@
-# VM-X AI AWS CDK
+# VM-X AI Labs
 
 TBC
