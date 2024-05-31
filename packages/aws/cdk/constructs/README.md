@@ -38,7 +38,7 @@ The architecture is based on the AWS Step Functions service, which orchestrates 
 
 The workflow is defined as follows:
 
-1. **Set Default Variables**: This step defines the default variables for the workflow, such as the `max_concurrency` for the parallel execution of the workflow or `similarity_search_max_results` that defines the number of similar results to be returned.
+**1. Set Default Variables**: This step defines the default variables for the workflow, such as the `max_concurrency` for the parallel execution of the workflow or `similarity_search_max_results` that defines the number of similar results to be returned.
 
 ```json
 {
@@ -54,9 +54,9 @@ The workflow is defined as follows:
 | `tolerated_failure_percentage`  | The percentage of tolerated failures in the workflow for the parallel steps                                                                | 0       |
 | `similarity_search_max_results` | The number of similar results to be returned by the similarity search engine                                                               | 5       |
 
-2. **Apply Defaults**: This step merges the default variables with the input variables, overwriting the default values if the input values are defined.
+**2. Apply Defaults**: This step merges the default variables with the input variables, overwriting the default values if the input values are defined.
 
-3. **Split Input**: This step invokes a lambda function that is responsible for splitting the input data into chunks, the number of chunks, or how the data is split is implemented by the user.
+**3. Split Input**: This step invokes a lambda function that is responsible for splitting the input data into chunks, the number of chunks, or how the data is split is implemented by the user.
 
 This example is based on the LangChain [How to handle long text when doing extraction](https://python.langchain.com/v0.2/docs/how_to/extraction_long_text/) documentation.
 
@@ -142,13 +142,13 @@ And returns the following output to the AWS Step Functions:
 }
 ```
 
-4. **Embedding Map**
+**4. Embedding Map**
 
 This step uses the [AWS Step Functions Distributed Map](https://aws.amazon.com/blogs/aws/step-functions-distributed-map-a-serverless-solution-for-large-scale-parallel-data-processing/) operator, this operator uses the AWS S3 APIs to list the objects in the S3 bucket by the prefix returned by the **Split Input** lambda function, and for each S3 object, it invokes a lambda function that is responsible for embedding the data.
 
 By using the Distributed Map operator we overcome the limitation of the AWS Step Functions payload size and the number of items that can be processed in parallel, and also the size of the data exchanged between the steps, allowing the workflow to process a large number of items in the workflow.
 
-4.1. **Embedding Chunk**
+**4.1. Embedding Chunk**
 
 This lambda is invoked by the Distributed Map operator and receives the chunk S3 object key as input, in the following format:
 
@@ -219,7 +219,7 @@ And returns the following output to the AWS Step Functions:
 }
 ```
 
-5. **Similarity Search**
+**5. Similarity Search**
 
 The Distributed Map operator waits for all the items to be processed and writes a manifest file in the S3 bucket with the following format:
 
@@ -325,13 +325,13 @@ And returns the following output to the AWS Step Functions:
 }
 ```
 
-6. **Extraction Map**
+**6. Extraction Map**
 
 This step also uses the AWS Step Functions Distributed Map operator, but in this case, it uses the `getObject` S3 API and uses a JSON interpreter to read the results from the **Similarity Search** lambda function.
 
 Each item in the JSON file becomes an item in the Distributed Map operator, and for each item, it invokes a lambda function that is responsible for extracting the data.
 
-6.1. **LLM Extraction**
+**6.1. LLM Extraction**
 
 This lambda is invoked by the Distributed Map operator and receives the document as input, in the following format:
 
@@ -429,6 +429,6 @@ The `extractor.invoke({"text": document.page_content})` from LangChain returns a
 ]
 ```
 
-6.2. **Store Results**
+**6.2. Store Results**
 
 In this point, the extracted data can be used in different ways, like storing in a database, sending to a queue, calling an API, storing to a data lake, etc.
