@@ -1,0 +1,52 @@
+[tool.coverage.run]
+branch = true
+source = [ "lambda_functions" ]
+
+[tool.coverage.report]
+exclude_lines = [ "if TYPE_CHECKING:" ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html:'../../../../coverage/packages/aws/serverless/langchain/structured-extraction/python/html' --cov-report xml:'../../../../coverage/packages/aws/serverless/langchain/structured-extraction/python/coverage.xml' --html='../../../../reports/packages/aws/serverless/langchain/structured-extraction/python/unittests/html/index.html' --junitxml='../../../../reports/packages/aws/serverless/langchain/structured-extraction/python/unittests/junit.xml'"
+
+[tool.poetry]
+name = "vm-x-ai-aws-serverless-similarity-extraction"
+version = "1.0.0"
+description = "AWS Serverless AI Similarity Extraction"
+authors = [ ]
+license = "Proprietary"
+readme = "README.md"
+
+  [[tool.poetry.packages]]
+  include = "lambda_functions"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<4"
+  langchain-community = "^0.2.1"
+  langchain-core = "^0.2.1"
+  langchain = "^0.2.1"
+  langchain-openai = "^0.1.7"
+  cachetools = "^5.3.3"
+  python-json-logger = "^2.0.7"
+  bs4 = "^0.0.2"
+  lxml = "^5.2.2"
+  faiss-cpu = "1.7.4"
+
+    [tool.poetry.dependencies.vm-x-ai-extraction]
+    path = "../../../python/extraction"
+    develop = true
+
+[tool.ruff]
+exclude = [ ".ruff_cache", ".svn", ".tox", ".venv", "dist" ]
+line-length = 120
+indent-width = 4
+
+  [tool.ruff.lint]
+  select = [ "E", "F", "UP", "B", "SIM", "I" ]
+  ignore = [ ]
+  fixable = [ "ALL" ]
+  unfixable = [ ]
+
+[build-system]
+requires = [ "poetry-core" ]
+build-backend = "poetry.core.masonry.api"

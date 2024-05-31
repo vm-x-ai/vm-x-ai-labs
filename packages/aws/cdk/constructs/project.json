@@ -1,0 +1,28 @@
+{
+  "name": "aws-cdk-constructs",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/aws/cdk/constructs/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/aws/cdk/constructs",
+        "main": "packages/aws/cdk/constructs/src/index.ts",
+        "tsConfig": "packages/aws/cdk/constructs/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {}
+    }
+  },
+  "tags": ["aws", "cdk"]
+}

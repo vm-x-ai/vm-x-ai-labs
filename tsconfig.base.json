@@ -22,7 +22,9 @@
     "strictPropertyInitialization": false,
     "baseUrl": ".",
     "typeRoots": ["node_modules/@types", "./types"],
-    "paths": {}
+    "paths": {
+      "@vm-x-ai/aws-cdk-constructs": ["packages/aws/cdk/constructs/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

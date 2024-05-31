@@ -1,0 +1,32 @@
+{
+  "name": "@vm-x-ai/aws-cdk-constructs",
+  "version": "0.0.1",
+  "description": "VM-X AWS CDK Constructs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vm-x-ai/vm-x-ai-labs.git",
+    "directory": "packages/aws/cdk/constructs"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": {
+    "url": "https://github.com/vm-x-ai/vm-x-ai-labs/issues",
+    "email": "eng@vm-x.ai"
+  },
+  "author": {
+    "name": "VM-X Engineering",
+    "email": "eng@vm-x.ai"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "aws-cdk-lib": "^2.143.0",
+    "constructs": "^10.3.0",
+    "tar": "^7.1.0"
+  },
+  "type": "module",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
+}
