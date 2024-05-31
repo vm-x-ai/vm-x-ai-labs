@@ -10,6 +10,15 @@ export class SimilarityExtractionStack extends cdk.Stack {
     const { similaritySearchFn, extractionFn, embeddingFn } = new SimilarityExtractionWorkflow(
       this,
       'similarity-extraction',
+      {
+        stateMachine: {
+          extractionInputPayload: {
+            'model.$': '$.model',
+            'schema.$': '$.schema',
+            'instructions.$': '$.instructions',
+          },
+        },
+      },
     );
 
     [similaritySearchFn, extractionFn, embeddingFn].forEach((fn) => {

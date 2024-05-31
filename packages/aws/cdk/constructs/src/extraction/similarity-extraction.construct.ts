@@ -25,7 +25,10 @@ import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 import * as tar from 'tar';
 
+cdk.aws_s3.Bucket;
+
 export type SimilarityExtractionWorkflowProps = {
+  existingStagingBucket?: Bucket;
   stagingBucketProps?: BucketProps;
   projectRoot?: string;
   lambdas?: {
@@ -47,6 +50,10 @@ export type SimilarityExtractionWorkflowProps = {
       props?: Partial<FunctionProps>;
     };
   };
+  stateMachine?: {
+    splitInputPayload?: Record<string, unknown>;
+    extractionInputPayload?: Record<string, unknown>;
+  };
 };
 
 export type PythonBuildArtifact = {
@@ -63,6 +70,7 @@ export class SimilarityExtractionWorkflow extends Construct {
   public readonly extractionFn: cdk.aws_lambda.Function;
   public readonly stagingBucket: Bucket;
   public readonly stateMachine: StateMachine;
+  public readonly stateMachineRole: Role;
   public readonly stateMachineDefinitionBody: Chain;
 
   private readonly runtime = Runtime.PYTHON_3_10;
@@ -76,20 +84,22 @@ export class SimilarityExtractionWorkflow extends Construct {
 
     const projectRoot = props?.projectRoot || process.cwd();
 
-    this.stagingBucket = new Bucket(this, 'StagingBucket', {
-      bucketName: `${id}-staging-bucket-${this.region}`,
-      encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      lifecycleRules: [
-        {
-          expiration: cdk.Duration.days(7),
-          id: 'DeleteAfter7Days',
-          enabled: true,
-        },
-      ],
-      ...(props?.stagingBucketProps || {}),
-    });
+    this.stagingBucket =
+      props?.existingStagingBucket ||
+      new Bucket(this, 'StagingBucket', {
+        bucketName: `${id}-staging-bucket-${this.region}`,
+        encryption: BucketEncryption.S3_MANAGED,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        lifecycleRules: [
+          {
+            expiration: cdk.Duration.days(7),
+            id: 'DeleteAfter7Days',
+            enabled: true,
+          },
+        ],
+        ...(props?.stagingBucketProps || {}),
+      });
 
     const buildArtifact = this.getBuildArfifact(projectRoot);
     const assetHash = this.getPoetryLockHash(projectRoot);
@@ -158,20 +168,20 @@ export class SimilarityExtractionWorkflow extends Construct {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const role = new Role(this, 'StateMachineRole', {
+    this.stateMachineRole = new Role(this, 'StateMachineRole', {
       roleName: `${id}-workflow-${this.region}`,
       assumedBy: new ServicePrincipal('states.amazonaws.com'),
     });
 
-    role.addToPolicy(
+    this.stateMachineRole.addToPolicy(
       new PolicyStatement({
         actions: ['states:StartExecution', 'states:DescribeExecution', 'states:StopExecution'],
         resources: ['*'],
       }),
     );
 
-    this.stagingBucket.grantReadWrite(role);
-    [this.embeddingFn, this.extractionFn].forEach((fn) => fn.grantInvoke(role));
+    this.stagingBucket.grantReadWrite(this.stateMachineRole);
+    [this.embeddingFn, this.extractionFn].forEach((fn) => fn.grantInvoke(this.stateMachineRole));
 
     const defaultVariables = new Pass(this, 'Set Default Variables', {
       result: {
@@ -200,6 +210,7 @@ export class SimilarityExtractionWorkflow extends Construct {
       },
       payload: TaskInput.fromObject({
         execution_id: JsonPath.stringAt('$$.Execution.Name'),
+        ...(props?.stateMachine?.splitInputPayload || {}),
       }),
     });
 
@@ -282,9 +293,7 @@ export class SimilarityExtractionWorkflow extends Construct {
         ItemSelector: {
           'item.$': '$$.Map.Item.Value',
           'execution_id.$': '$$.Execution.Name',
-          'model.$': '$.model',
-          'schema.$': '$.schema',
-          'instructions.$': '$.instructions',
+          ...(props?.stateMachine?.extractionInputPayload || {}),
         },
         ItemProcessor: {
           ProcessorConfig: {
@@ -311,7 +320,7 @@ export class SimilarityExtractionWorkflow extends Construct {
         level: LogLevel.ALL,
         destination: logGroup,
       },
-      role,
+      role: this.stateMachineRole,
       tracingEnabled: true,
       comment: 'One-time AI extraction workflow',
     });
