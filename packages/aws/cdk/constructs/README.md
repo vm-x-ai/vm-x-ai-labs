@@ -109,48 +109,48 @@ Here is a complete example of a project using the `SimilarityExtractionWorkflow`
 
 ##### Properties
 
-- `existingStagingBucket` (`cdk.aws_s3.Bucket`): (Optional) An existing S3 bucket to store all workflow files during the execution of the workflow, if not provided a new bucket will be created.
-- `stagingBucketProps` (`cdk.aws_s3.BucketProps`): (Optional) The properties to create a new S3 bucket to store all workflow files during the execution of the workflow, if not provided the bucket will be created with default properties.
+- **existingStagingBucket** (`cdk.aws_s3.Bucket`): (Optional) An existing S3 bucket to store all workflow files during the execution of the workflow, if not provided a new bucket will be created.
+- **stagingBucketProps** (`cdk.aws_s3.BucketProps`): (Optional) The properties to create a new S3 bucket to store all workflow files during the execution of the workflow, if not provided the bucket will be created with default properties.
   - By default, the bucket is encrypted with the default AWS Managed Key, a lifecycle rule is created to delete the objects after 7 days, and removal policy is set to `DESTROY`.
-- `projectRoot` (`string`): (Optional) The path to the project root directory, where the `pyproject.toml` and `poetry.lock` files are located, if not provided it used the current working directory.
-- `lambdas` (`object`): (Optional)
-  - `layerProps` (`Partial<cdk.aws_lambda.LayerVersionProps>`): (Optional) The properties to create a new lambda layer with the required dependencies to run the lambda functions in the workflow, if not provided the layer will be created with default properties.
+- **projectRoot** (`string`): (Optional) The path to the project root directory, where the `pyproject.toml` and `poetry.lock` files are located, if not provided it used the current working directory.
+- **lambdas** (`object`): (Optional)
+  - **layerProps** (`Partial<cdk.aws_lambda.LayerVersionProps>`): (Optional) The properties to create a new lambda layer with the required dependencies to run the lambda functions in the workflow, if not provided the layer will be created with default properties.
     - By default, the layer is created with the latest Python 3.10 runtime, and the dependencies are installed using Poetry.
-  - `splitFn` (`object`): (Optional)
-    - `fn` (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to split the input data into chunks, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
-    - `props`: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to split the input data into chunks, if not provided the lambda function will be created with default properties.
-      - 15 minutes timeout
-      - 1024MB memory
-      - 512MB disk space
-      - Python 3.10 runtime
+  - **splitFn** (`object`): (Optional)
+    - **fn** (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to split the input data into chunks, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
+    - **props**: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to split the input data into chunks, if not provided the lambda function will be created with default properties.
+      - **15** minutes timeout
+      - **1024MB** memory
+      - **512MB** disk space
+      - Python **3.10** runtime
       - handler: `lambda_functions/split/main.handler`
-  - `embeddingFn` (`object`): (Optional)
-    - `fn` (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to be invoked by the distributed map to embed the chunk data, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
-    - `props`: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to be invoked by the distributed map to embed the chunk data, if not provided the lambda function will be created with default properties.
-      - 15 minutes timeout
-      - 1024MB memory
-      - 512MB disk space
-      - Python 3.10 runtime
+  - **embeddingFn** (`object`): (Optional)
+    - **fn** (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to be invoked by the distributed map to embed the chunk data, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
+    - **props**: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to be invoked by the distributed map to embed the chunk data, if not provided the lambda function will be created with default properties.
+      - **15** minutes timeout
+      - **1024MB** memory
+      - **512MB** disk space
+      - Python **3.10** runtime
       - handler: `lambda_functions/embedding/main.handler`
-  - `similaritySearchFn` (`object`): (Optional)
-    - `fn` (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to perform the similarity search in the vectordb, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
-    - `props`: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to perform the similarity search in the vectordb, if not provided the lambda function will be created with default properties.
-      - 15 minutes timeout
-      - 1024MB memory
-      - 512MB disk space
-      - Python 3.10 runtime
+  - **similaritySearchFn** (`object`): (Optional)
+    - **fn** (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to perform the similarity search in the vectordb, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
+    - **props**: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to perform the similarity search in the vectordb, if not provided the lambda function will be created with default properties.
+      - **15** minutes timeout
+      - **1024MB** memory
+      - **512MB** disk space
+      - Python **3.10** runtime
       - handler: `lambda_functions/embedding/main.handler`
-  - `extractionFn` (`object`): (Optional)
-    - `fn` (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to extract data using the LLM provider, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
-    - `props`: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to extract data using the LLM provider, if not provided the lambda function will be created with default properties.
-      - 15 minutes timeout
-      - 1024MB memory
-      - 512MB disk space
-      - Python 3.10 runtime
+  - **extractionFn** (`object`): (Optional)
+    - **fn** (`cdk.aws_lambda.Function`): (Optional) An existing lambda function to extract data using the LLM provider, if not provided a new lambda function will be created with default properties. (In the next section there are more details about the lambda function)
+    - **props**: (`Partial<FunctionProps>`): (Optional) The properties to create a new lambda function to extract data using the LLM provider, if not provided the lambda function will be created with default properties.
+      - **15** minutes timeout
+      - **1024MB** memory
+      - **512MB** disk space
+      - Python **3.10** runtime
       - handler: `lambda_functions/embedding/main.handler`
-- `stateMachine` (`object`): (Optional)
-  - `splitInputPayload` (`object`): (Optional) The payload mapping to pass the input data to the `Split Input` lambda function, the following object is always provided to the lambda `{ "execution_id.$": "$$.Execution.Name" }`
-  - `extractionInputPayload` (`object`): (Optional) The payload mapping to pass the input data to the `LLM Extraction` lambda function, the following object is always provided to the lambda. `{ "item.$": "$$.Map.Item.Value", "execution_id.$": "$$.Execution.Name" }`
+- **stateMachine** (`object`): (Optional)
+  - **splitInputPayload** (`object`): (Optional) The payload mapping to pass the input data to the `Split Input` lambda function, the following object is always provided to the lambda `{ "execution_id.$": "$$.Execution.Name" }`
+  - **extractionInputPayload** (`object`): (Optional) The payload mapping to pass the input data to the `LLM Extraction` lambda function, the following object is always provided to the lambda. `{ "item.$": "$$.Map.Item.Value", "execution_id.$": "$$.Execution.Name" }`
 
 ##### Architecture
 
