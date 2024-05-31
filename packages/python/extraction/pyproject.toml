@@ -11,7 +11,7 @@ addopts = "--cov --cov-report html:'../../../coverage/packages/python/extraction
 
 [tool.poetry]
 name = "vm-x-ai-extraction"
-version = "0.0.1"
+version = "0.1.0"
 description = "VM-X AI Extraction Helper Library"
 authors = [ "VM-X Engineering <eng@vm-x.ai>" ]
 maintainers = [ "VM-X Engineering <eng@vm-x.ai>" ]
