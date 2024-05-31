@@ -1,6 +1,6 @@
 {
   "name": "@vm-x-ai/aws-cdk-constructs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "VM-X AWS CDK Constructs",
   "license": "MIT",
   "repository": {
