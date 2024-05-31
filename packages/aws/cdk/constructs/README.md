@@ -223,6 +223,14 @@ def handler(event: SplitLambdaHandlerEvent, context: Any) -> list[str]:
 
 To make the development of the lambda function easier, all the complexity required by the AWS Step Functions is abstracted by the `split_handler` decorator.
 
+The `split_handler` decorator can be installed using the following command:
+
+```bash
+poetry add vm-x-ai-extraction
+```
+
+Full documentation can be found [here](../../../python/extraction/README.md).
+
 Since AWS Step Functions has a limitation of 256KB for the state input/output, so the chunks produced by this lambda, the `split_handler` decorator is responsible for receiving the chunks and storing them in an S3 bucket.
 
 The `split_handler` splits the list of chunks into smaller lists and stores them into individual files in the S3 bucket, in this way, we avoid the memory limitation of the next lambda function that will process the chunks.
