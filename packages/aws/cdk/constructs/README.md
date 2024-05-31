@@ -229,7 +229,7 @@ The `split_handler` decorator can be installed using the following command:
 poetry add vm-x-ai-extraction
 ```
 
-Full documentation can be found [here](../../../python/extraction/README.md).
+Full documentation can be found [here](https://pypi.org/project/vm-x-ai-extraction/).
 
 Since AWS Step Functions has a limitation of 256KB for the state input/output, so the chunks produced by this lambda, the `split_handler` decorator is responsible for receiving the chunks and storing them in an S3 bucket.
 
