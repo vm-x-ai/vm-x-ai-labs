@@ -21,12 +21,10 @@
     "email": "eng@vm-x.ai"
   },
   "dependencies": {
-    "tslib": "^2.3.0",
     "aws-cdk-lib": "^2.143.0",
     "constructs": "^10.3.0",
     "tar": "^7.1.0"
   },
-  "type": "module",
   "main": "./src/index.js",
   "typings": "./src/index.d.ts"
 }

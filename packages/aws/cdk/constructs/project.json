@@ -5,13 +5,40 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/rollup:rollup",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/packages/aws/cdk/constructs",
         "main": "packages/aws/cdk/constructs/src/index.ts",
+        "outputPath": "dist/packages/aws/cdk/constructs",
         "tsConfig": "packages/aws/cdk/constructs/tsconfig.lib.json",
-        "assets": []
+        "compiler": "swc",
+        "project": "packages/aws/cdk/constructs/package.json",
+        "format": ["esm", "cjs"],
+        "external": "all",
+        "rollupConfig": "packages/aws/cdk/constructs/rollup.config.js",
+        "generateExportsField": true,
+        "assets": [
+          {
+            "glob": "packages/aws/cdk/constructs/README.md",
+            "input": ".",
+            "output": "."
+          },
+          {
+            "glob": "packages/aws/cdk/constructs/CHANGELOG.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
       }
     },
     "lint": {
