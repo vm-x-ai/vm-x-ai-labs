@@ -1,0 +1,32 @@
+{
+  "similarity_search_query": "Key developments associated with cars",
+  "similarity_search_max_results": 1,
+  "model": "gpt-3.5-turbo",
+  "instructions": "You are an expert at identifying key historic development in text. Only extract important historic developments. Extract nothing if no important information can be found in the text.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "key_developments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "year": {
+              "type": "number",
+              "description": "The year when there was an important historic development."
+            },
+            "description": {
+              "type": "string",
+              "description": "What happened in this year? What was the development?"
+            },
+            "evidence": {
+              "type": "string",
+              "description": "Repeat in verbatim the sentence(s) from which the year and description information were extracted"
+            }
+          },
+          "required": ["year", "description", "evidence"]
+        }
+      }
+    }
+  }
+}

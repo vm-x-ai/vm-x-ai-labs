@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "declaration": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/commands/generator/ai-extraction/files/nx/infra/stacks/similarity-extraction-stack.ts.template",
+    "src/commands/generator/ai-extraction/files/nx/infra/main.ts.template"
+  ],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
+}
