@@ -1,0 +1,44 @@
+{
+  "name": "vm-x-ai",
+  "version": "0.2.3",
+  "description": "VM-X CLI",
+  "license": "MIT",
+  "bin": {
+    "vm-x-ai": "./bin/index.cjs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vm-x-ai/vm-x-ai-labs.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": {
+    "url": "https://github.com/vm-x-ai/vm-x-ai-labs/issues",
+    "email": "eng@vm-x.ai"
+  },
+  "author": {
+    "name": "VM-X Engineering",
+    "email": "eng@vm-x.ai"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.588.0",
+    "@aws-sdk/client-ec2": "^3.588.0",
+    "@aws-sdk/client-sts": "^3.588.0",
+    "@aws-sdk/credential-providers": "^3.588.0",
+    "@smithy/types": "^3.0.0",
+    "chalk": "^4.1.2",
+    "log-symbols": "^4.1.0",
+    "ejs": "^3.1.10",
+    "yargs": "^17.7.2",
+    "pino": "^9.1.0",
+    "pino-pretty": "^11.1.0",
+    "command-exists": "^1.2.9",
+    "enquirer": "^2.4.1",
+    "node-pty": "^1.0.0"
+  },
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
+}

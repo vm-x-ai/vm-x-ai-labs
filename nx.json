@@ -68,8 +68,9 @@
   },
   "generators": {
     "@nxlv/python:poetry-project": {
-      "pyprojectPythonDependency": ">=3.8.1,<4",
-      "linter": "ruff"
+      "pyprojectPythonDependency": ">=3.9,<4",
+      "linter": "ruff",
+      "pyenvPythonVersion": "3.9.5"
     }
   }
 }
