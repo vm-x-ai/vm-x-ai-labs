@@ -10,6 +10,7 @@
       "defaultConfiguration": "development",
       "options": {
         "main": "packages/cli/src/index.ts",
+        "additionalEntryPoints": ["packages/cli/bin/index.ts"],
         "outputPath": "dist/packages/cli",
         "tsConfig": "packages/cli/tsconfig.lib.json",
         "compiler": "swc",

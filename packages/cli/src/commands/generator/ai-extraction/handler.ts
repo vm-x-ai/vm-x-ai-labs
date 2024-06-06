@@ -172,10 +172,7 @@ runner.register(
           '--description="AWS Serverless Implementation of Langchain Long File Structured Extraction"',
           '--moduleName=lambda_functions',
           '--packageName=ai-extraction',
-          `--templateDir=${path.join(
-            import.meta.dirname || __dirname,
-            './src/commands/generator/ai-extraction/files/nx',
-          )}`,
+          `--templateDir=${path.join(import.meta.dirname || __dirname, 'files', 'nx')}`,
         ].join(' '),
       );
 
@@ -188,7 +185,7 @@ runner.register(
     endLog: 'Python AI extraction project generated successfully',
     when: async (args) => args.monorepoTool === undefined && args.language === 'python',
     run: async (args) => {
-      fs.unlinkSync(path.join('bin', `my-project.ts`));
+      fs.rmdirSync('bin', { recursive: true });
       fs.rmdirSync('lib', { recursive: true });
       fs.rmdirSync('test', { recursive: true });
 
@@ -208,33 +205,29 @@ runner.register(
 
       await installNpmPackages([{ name: '@vm-x-ai/aws-cdk-constructs', version: '' }]);
 
-      await generateFiles(
-        path.join(import.meta.dirname || __dirname, './src/commands/generator/ai-extraction/files/standard'),
-        process.cwd(),
-        {
-          dot: '.',
-          pyenvPythonVersion: '3.9.5',
-          moduleName: 'lambda_functions',
-          codeCoverage: true,
-          unitTestRunner: 'pytest',
-          pythonAddopts: [
-            '--cov',
-            "--cov-report html:'reports/coverage/html'",
-            "--cov-report xml:'reports/coverage/coverage.xml'",
-            "--html='reports/unittests/html/index.html'",
-            "--junitxml='reports/unittests/junit.xml'",
-          ].join(' '),
-          packageName: 'ai-extraction',
-          description: 'AWS Serverless Implementation of Langchain Long File Structured Extraction',
-          pyprojectPythonDependency: '>=3.9,<4',
-          individualPackage: true,
-          devDependenciesProject: '',
-          linter: 'ruff',
-          codeCoverageHtmlReport: true,
-          projectName: args.name,
-          devDependenciesProjectPkgName: '',
-        },
-      );
+      await generateFiles(path.join(import.meta.dirname || __dirname, 'files', 'standard'), process.cwd(), {
+        dot: '.',
+        pyenvPythonVersion: '3.9.5',
+        moduleName: 'lambda_functions',
+        codeCoverage: true,
+        unitTestRunner: 'pytest',
+        pythonAddopts: [
+          '--cov',
+          "--cov-report html:'reports/coverage/html'",
+          "--cov-report xml:'reports/coverage/coverage.xml'",
+          "--html='reports/unittests/html/index.html'",
+          "--junitxml='reports/unittests/junit.xml'",
+        ].join(' '),
+        packageName: 'ai-extraction',
+        description: 'AWS Serverless Implementation of Langchain Long File Structured Extraction',
+        pyprojectPythonDependency: '>=3.9,<4',
+        individualPackage: true,
+        devDependenciesProject: '',
+        linter: 'ruff',
+        codeCoverageHtmlReport: true,
+        projectName: args.name,
+        devDependenciesProjectPkgName: '',
+      });
 
       await spawnPromise('poetry install');
     },
@@ -298,7 +291,12 @@ runner.register(
     description: 'Define AWS profile and region',
     when: async (args) => args.provider === 'aws',
     run: async (args, runner) => {
-      const awsProfiles = (await spawnPromise('aws configure list-profiles', process.cwd(), {}, true)).output
+      const awsProfiles = (
+        await spawnPromise('aws configure list-profiles', {
+          captureOutput: true,
+          output: false,
+        })
+      ).output
         .split('\n')
         .map((profile) => profile.trim())
         .filter((profile) => profile);
@@ -325,7 +323,10 @@ runner.register(
       const profileRegion =
         !process.env.AWS_REGION && awsProfile
           ? (
-              await spawnPromise(`aws configure get region --profile ${awsProfile}`, process.cwd(), {}, true)
+              await spawnPromise(`aws configure get region --profile ${awsProfile}`, {
+                captureOutput: true,
+                output: false,
+              })
             ).output.trim()
           : 'us-east-1';
 
@@ -378,9 +379,11 @@ runner.register(
         region: context.awsRegion,
       });
       const caller = await stsClient.send(new GetCallerIdentityCommand({}));
-      await spawnPromise(`npx cdk bootstrap aws://${caller.Account}/${context.awsRegion}`, process.cwd(), {
-        AWS_PROFILE: context.awsProfile,
-        AWS_REGION: context.awsRegion,
+      await spawnPromise(`npx cdk bootstrap aws://${caller.Account}/${context.awsRegion}`, {
+        envVars: {
+          AWS_PROFILE: context.awsProfile,
+          AWS_REGION: context.awsRegion,
+        },
       });
     },
   },
@@ -390,9 +393,11 @@ runner.register(
     endLog: 'AI extraction project deployed successfully',
     when: async (args) => args.monorepoTool === 'nx' && args.provider === 'aws',
     run: async (args, { context }) => {
-      await spawnPromise(`npx nx run ${context.projectName}:deploy`, process.cwd(), {
-        AWS_PROFILE: context.awsProfile,
-        AWS_REGION: context.awsRegion,
+      await spawnPromise(`npx nx run ${context.projectName}:deploy`, {
+        envVars: {
+          AWS_PROFILE: context.awsProfile,
+          AWS_REGION: context.awsRegion,
+        },
       });
     },
   },
@@ -402,9 +407,11 @@ runner.register(
     endLog: 'AI extraction project deployed successfully',
     when: async (args) => args.monorepoTool === undefined && args.provider === 'aws',
     run: async (args, { context }) => {
-      await spawnPromise(`npm run cdk:deploy`, process.cwd(), {
-        AWS_PROFILE: context.awsProfile,
-        AWS_REGION: context.awsRegion,
+      await spawnPromise(`npm run cdk:deploy`, {
+        envVars: {
+          AWS_PROFILE: context.awsProfile,
+          AWS_REGION: context.awsRegion,
+        },
       });
     },
   },

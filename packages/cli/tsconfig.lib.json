@@ -5,10 +5,6 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/commands/generator/ai-extraction/files/nx/infra/stacks/similarity-extraction-stack.ts.template",
-    "src/commands/generator/ai-extraction/files/nx/infra/main.ts.template"
-  ],
+  "include": ["src/**/*.ts", "bin/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }

@@ -1,6 +1,6 @@
-import type { SpawnSyncOptions } from 'child_process';
 import { spawn } from 'child_process';
 import commandExists from 'command-exists';
+import * as pty from 'node-pty';
 import { logger } from '../logger';
 
 export type SpawnPromiseResult = {
@@ -8,6 +8,16 @@ export type SpawnPromiseResult = {
   code: number | null;
   output: string;
 };
+
+export class CommandError extends Error {
+  constructor(
+    message: string,
+    public code: number | null,
+    public output: string,
+  ) {
+    super(message);
+  }
+}
 
 export async function isInstalled(command: string): Promise<boolean> {
   try {
@@ -18,52 +28,101 @@ export async function isInstalled(command: string): Promise<boolean> {
   }
 }
 
-export const spawnPromise = function (
+async function getTerminalExecutable(command: string): Promise<{ shell: string; args: string[]; exec: string }> {
+  if (process.platform === 'win32') {
+    return { shell: 'powershell.exe', args: [], exec: `${command}; exit\r` };
+  } else if (process.platform === 'darwin' && (await isInstalled('zsh'))) {
+    return {
+      shell: 'zsh',
+      args: ['--no-rcs', '-d'],
+      exec: `unsetopt share_history; unsetopt inc_append_history; ${command}; exit\r`,
+    };
+  }
+
+  return { shell: 'bash', args: ['--norc', '--noprofile'], exec: `${command}; exit\r` };
+}
+
+export async function spawnPromise(
   command: string,
-  cwd: string = process.cwd(),
-  envVars?: Record<string, string | undefined>,
-  output = false,
+  options?: {
+    cwd?: string;
+    envVars?: Record<string, string | undefined>;
+    captureOutput?: boolean;
+    output?: boolean;
+  },
 ): Promise<SpawnPromiseResult> {
+  const { shell, args, exec } = await getTerminalExecutable(command);
   return new Promise((resolve, reject) => {
     logger.debug(`Running command: ${command}`);
-    const env: Record<string, string> = {
+    const opts = {
+      ...(options || {}),
+      cwd: options?.cwd || process.cwd(),
+      envVars: options?.envVars || {},
+      captureOutput: options?.captureOutput || false,
+      output: options?.output || true,
+    };
+
+    const env: NodeJS.ProcessEnv = {
       ...process.env,
-      ...(envVars ?? {}),
-      ...(output ? { FORCE_COLOR: 'true' } : {}),
+      ...(opts.envVars || {}),
+      ...(opts.output ? { FORCE_COLOR: '1' } : {}),
     };
 
-    const args: SpawnSyncOptions = {
-      cwd,
-      shell: true,
-      stdio: output ? ['inherit', 'pipe', 'pipe'] : 'inherit',
-      env,
-    };
-
-    const child = spawn(command, args);
     let outputStr = '';
-
-    if (output) {
-      child.stdout?.on('data', (data) => {
-        outputStr += data;
+    if (opts.captureOutput) {
+      const child = spawn(command, {
+        cwd: opts.cwd,
+        env,
+        shell: true,
+        stdio: ['inherit', 'pipe', 'pipe'],
       });
 
-      child.stderr?.on('data', (data) => {
+      child.stdout.on('data', (data) => {
         outputStr += data;
+        logger.debug(data.toString());
       });
+
+      child.stderr.on('data', (data) => {
+        outputStr += data;
+        logger.debug(data.toString());
+      });
+
+      child.on('exit', (code) => {
+        const result = {
+          success: code === 0,
+          code,
+          output: outputStr,
+        };
+        result.success
+          ? resolve(result)
+          : reject(new CommandError(`Error running command: ${command}`, code, outputStr));
+      });
+    } else {
+      const term = pty.spawn(shell, args, {
+        name: 'xterm-color',
+        cwd: opts.cwd,
+        env,
+        encoding: null,
+      });
+
+      term.onData((data) => {
+        if (opts.output) process.stdout.write(data);
+        if (opts.captureOutput) outputStr += data;
+        logger.debug(data.toString());
+      });
+
+      term.onExit(({ exitCode }) => {
+        const result = {
+          success: exitCode === 0,
+          code: exitCode,
+          output: outputStr,
+        };
+        result.success
+          ? resolve(result)
+          : reject(new CommandError(`Error running command: ${command}`, exitCode, outputStr));
+      });
+
+      term.write(exec);
     }
-
-    child.on('close', (code) => {
-      const result = {
-        success: code === 0,
-        code,
-        output: outputStr,
-      };
-
-      code === 0
-        ? resolve(result)
-        : output
-          ? reject(new Error(`Error running command: ${command}\n${outputStr}`))
-          : reject(new Error(`Error running command: ${command} with code ${code}`));
-    });
   });
-};
+}
